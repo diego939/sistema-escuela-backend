@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="SistemaEscuela.API/SistemaEscuela.API.csproj" />
+  <Project Path="SistemaEscuela.BLL/SistemaEscuela.BLL.csproj" />
+  <Project Path="SistemaEscuela.DAL/SistemaEscuela.DAL.csproj" />
+  <Project Path="SistemaEscuela.DTO/SistemaEscuela.DTO.csproj" />
+  <Project Path="SistemaEscuela.IOC/SistemaEscuela.IOC.csproj" />
+  <Project Path="SistemaEscuela.Model/SistemaEscuela.Model.csproj" />
+  <Project Path="SistemaEscuela.Utility/SistemaEscuela.Utility.csproj" />
+</Solution>
