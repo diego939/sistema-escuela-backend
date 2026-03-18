@@ -56,5 +56,47 @@ namespace SistemaEscuela.API.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+
+		[HttpPut("editar")]
+		public async Task<IActionResult> EditarUsuario([FromBody] EditarUsuarioDTO modelo)
+		{
+			try
+			{
+				var usuario = await _usuarioService.EditarUsuario(modelo);
+				return Ok(usuario);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpPut("activar")]
+		public async Task<IActionResult> ActivarUsuario([FromBody] ActivarDesactivarUsuarioDTO modelo)
+		{
+			try
+			{
+				var resultado = await _usuarioService.ActivarUsuario(modelo);
+				return Ok(new { mensaje = "Usuario activado correctamente", exitoso = resultado });
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpPut("desactivar")]
+		public async Task<IActionResult> DesactivarUsuario([FromBody] ActivarDesactivarUsuarioDTO modelo)
+		{
+			try
+			{
+				var resultado = await _usuarioService.DesactivarUsuario(modelo);
+				return Ok(new { mensaje = "Usuario desactivado correctamente", exitoso = resultado });
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
 	}
 }

@@ -9,5 +9,11 @@ namespace SistemaEscuela.BLL.Contratos
 		Task<UsuarioDTO> CrearUsuario(CrearUsuarioDTO modelo);
 
 		Task<List<UsuarioDTO>> ListaUsuarios();
+
+		Task<UsuarioDTO> EditarUsuario(EditarUsuarioDTO modelo);
+
+		Task<bool> ActivarUsuario(ActivarDesactivarUsuarioDTO modelo);
+
+		Task<bool> DesactivarUsuario(ActivarDesactivarUsuarioDTO modelo);
 	}
 }

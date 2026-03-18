@@ -95,5 +95,66 @@ namespace SistemaEscuela.BLL.Servicios
 
 				return lista;
 		}
+
+		public async Task<UsuarioDTO> EditarUsuario(EditarUsuarioDTO modelo)
+		{
+			var usuario = await _usuarioRepository.Consultar(u =>
+				u.Id == modelo.Id &&
+				u.FechaEliminacion == null)
+				.Include(u => u.IdRolNavigation)
+				.FirstOrDefaultAsync();
+
+			if (usuario == null)
+				throw new Exception("Usuario no encontrado");
+
+			usuario.Nombres = modelo.Nombres;
+			usuario.Apellidos = modelo.Apellidos;
+			usuario.Email = modelo.Email;
+			usuario.Telefono = modelo.Telefono;
+			usuario.Dni = modelo.Dni;
+			usuario.IdRol = modelo.IdRol;
+			usuario.UrlImagen = modelo.UrlImagen;
+
+			var editado = await _usuarioRepository.Editar(usuario);
+
+			if (!editado)
+				throw new Exception("Error al editar el usuario");
+
+			return new UsuarioDTO
+			{
+				Id = usuario.Id,
+				Nombres = usuario.Nombres,
+				Apellidos = usuario.Apellidos,
+				Email = usuario.Email,
+				Telefono = usuario.Telefono,
+				Rol = usuario.IdRolNavigation.Descripcion,
+				Dni = usuario.Dni,
+				UrlImagen = usuario.UrlImagen
+			};
+		}
+
+		public async Task<bool> ActivarUsuario(ActivarDesactivarUsuarioDTO modelo)
+		{
+			var usuario = await _usuarioRepository.Consultar(u => u.Id == modelo.Id)
+				.FirstOrDefaultAsync();
+
+			if (usuario == null)
+				throw new Exception("Usuario no encontrado");
+
+			usuario.FechaEliminacion = null;
+			return await _usuarioRepository.Editar(usuario);
+		}
+
+		public async Task<bool> DesactivarUsuario(ActivarDesactivarUsuarioDTO modelo)
+		{
+			var usuario = await _usuarioRepository.Consultar(u => u.Id == modelo.Id)
+				.FirstOrDefaultAsync();
+
+			if (usuario == null)
+				throw new Exception("Usuario no encontrado");
+
+			usuario.FechaEliminacion = DateTime.Now;
+			return await _usuarioRepository.Editar(usuario);
+		}
 	}
 }
