@@ -20,9 +20,11 @@ namespace SistemaEscuela.BLL.Servicios
 
 		public async Task<UsuarioDTO> Login(LoginDTO modelo)
 		{
-			var usuario = await _usuarioRepository.Obtener(u =>
+			var usuario = await _usuarioRepository.Consultar(u =>
 				u.Email == modelo.Email &&
-				u.FechaEliminacion == null);
+				u.FechaEliminacion == null)
+				.Include(u => u.IdRolNavigation)
+				.FirstOrDefaultAsync();
 
 			if (usuario == null)
 				throw new Exception("Usuario no encontrado");
@@ -39,7 +41,11 @@ namespace SistemaEscuela.BLL.Servicios
 				Id = usuario.Id,
 				Nombres = usuario.Nombres,
 				Apellidos = usuario.Apellidos,
-				Email = usuario.Email
+				Email = usuario.Email,
+				Telefono = usuario.Telefono,
+				Rol = usuario.IdRolNavigation.Descripcion,
+				Dni = usuario.Dni,
+				UrlImagen = usuario.UrlImagen
 			};
 		}
 

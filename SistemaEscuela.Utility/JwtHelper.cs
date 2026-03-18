@@ -40,8 +40,9 @@ namespace SistemaEscuela.Utility
 				),
 				signingCredentials: creds
 			);
-
-			return new JwtSecurityTokenHandler().WriteToken(token);
+			var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+			Console.WriteLine($"Token generado: {tokenString}");
+			return tokenString;
 		}
 	}
 }
