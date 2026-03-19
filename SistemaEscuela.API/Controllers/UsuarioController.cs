@@ -98,5 +98,19 @@ namespace SistemaEscuela.API.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+
+		[HttpPut("cambiar-password")]
+		public async Task<IActionResult> CambiarPassword([FromBody] CambiarPasswordDTO modelo)
+		{
+			try
+			{
+				var resultado = await _usuarioService.CambiarPassword(modelo);
+				return Ok(new { mensaje = "Contraseña cambiada correctamente", exitoso = resultado });
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
 	}
 }

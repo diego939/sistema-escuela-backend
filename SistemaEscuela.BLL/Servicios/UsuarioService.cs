@@ -156,5 +156,30 @@ namespace SistemaEscuela.BLL.Servicios
 			usuario.FechaEliminacion = DateTime.Now;
 			return await _usuarioRepository.Editar(usuario);
 		}
+
+		public async Task<bool> CambiarPassword(CambiarPasswordDTO modelo)
+		{
+			var usuario = await _usuarioRepository.Consultar(u => u.Id == modelo.IdUsuario)
+				.FirstOrDefaultAsync();
+
+			if (usuario == null)
+				throw new Exception("Usuario no encontrado");
+
+			// Verificar que la contraseña actual sea correcta
+			if (!PasswordHelper.VerifyPassword(modelo.PasswordActual, usuario.Password))
+				throw new Exception("La contraseña actual es incorrecta");
+
+			// Validar que la nueva contraseña no sea vacía
+			if (string.IsNullOrWhiteSpace(modelo.PasswordNueva))
+				throw new Exception("La contraseña nueva no puede estar vacía");
+
+			// Validar que la contraseña nueva coincida con la confirmación
+			if (modelo.PasswordNueva != modelo.RepetirPasswordNueva)
+				throw new Exception("Las contraseñas nuevas no coinciden");
+
+			// Cambiar la contraseña
+			usuario.Password = PasswordHelper.HashPassword(modelo.PasswordNueva);
+			return await _usuarioRepository.Editar(usuario);
+		}
 	}
 }

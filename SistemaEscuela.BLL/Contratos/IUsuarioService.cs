@@ -15,5 +15,7 @@ namespace SistemaEscuela.BLL.Contratos
 		Task<bool> ActivarUsuario(ActivarDesactivarUsuarioDTO modelo);
 
 		Task<bool> DesactivarUsuario(ActivarDesactivarUsuarioDTO modelo);
+
+		Task<bool> CambiarPassword(CambiarPasswordDTO modelo);
 	}
 }
