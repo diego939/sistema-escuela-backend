@@ -28,6 +28,7 @@ namespace SistemaEscuela.IOC
 
 			// Servicios
 			services.AddScoped<IUsuarioService, UsuarioService>();
+			services.AddScoped<ICursoService, CursoService>();
 		}
 	}
 }
