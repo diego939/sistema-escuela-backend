@@ -1,0 +1,13 @@
+using SistemaEscuela.DTO.Profesor;
+
+namespace SistemaEscuela.BLL.Contratos
+{
+	public interface IProfesorService
+	{
+		Task<ProfesorCursoMateriaDTO> AsignarProfesorAMateria(AsignarProfesorDTO modelo);
+
+		Task<List<MateriaProfesorDTO>> ObtenerMateriasDelProfesor(int idProfesor);
+
+		Task<List<CursoProfesorDTO>> ObtenerCursosDelProfesor(int idProfesor);
+	}
+}
