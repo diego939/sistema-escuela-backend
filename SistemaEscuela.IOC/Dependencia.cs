@@ -33,6 +33,8 @@ namespace SistemaEscuela.IOC
 				services.AddScoped<IProfesorService, ProfesorService>();
 				services.AddScoped<IPreceptorService, PreceptorService>();
 				services.AddScoped<IInscripcionService, InscripcionService>();
+				services.AddScoped<ICalificacionService, CalificacionService>();
+				services.AddScoped<IPosteoService, PosteoService>();
 			}
 	}
 }
