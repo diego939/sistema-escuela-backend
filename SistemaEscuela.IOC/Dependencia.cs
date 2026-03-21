@@ -27,10 +27,12 @@ namespace SistemaEscuela.IOC
 			services.AddScoped<JwtHelper>();
 
 			// Servicios
-			services.AddScoped<IUsuarioService, UsuarioService>();
-			services.AddScoped<ICursoService, CursoService>();
-			services.AddScoped<IMateriaService, MateriaService>();
-			services.AddScoped<IProfesorService, ProfesorService>();
-		}
+				services.AddScoped<IUsuarioService, UsuarioService>();
+				services.AddScoped<ICursoService, CursoService>();
+				services.AddScoped<IMateriaService, MateriaService>();
+				services.AddScoped<IProfesorService, ProfesorService>();
+				services.AddScoped<IPreceptorService, PreceptorService>();
+				services.AddScoped<IInscripcionService, InscripcionService>();
+			}
 	}
 }
