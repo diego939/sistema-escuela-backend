@@ -1,4 +1,6 @@
-﻿namespace SistemaEscuela.DTO.Usuario
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace SistemaEscuela.DTO.Usuario
 {
 	public class UsuarioDTO
 	{
@@ -13,6 +15,8 @@
 		public string Telefono { get; set; }
 
 		public string Rol { get; set; }
+
+		public int? IdRol { get; set; }
 
 		public string Dni { get; set; }
 

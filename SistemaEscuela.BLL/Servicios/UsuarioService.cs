@@ -43,6 +43,7 @@ namespace SistemaEscuela.BLL.Servicios
 				Apellidos = usuario.Apellidos,
 				Email = usuario.Email,
 				Telefono = usuario.Telefono,
+				IdRol = usuario.IdRol,
 				Rol = usuario.IdRolNavigation.Descripcion,
 				Dni = usuario.Dni,
 				UrlImagen = usuario.UrlImagen

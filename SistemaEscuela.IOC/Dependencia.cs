@@ -35,6 +35,7 @@ namespace SistemaEscuela.IOC
 				services.AddScoped<IInscripcionService, InscripcionService>();
 				services.AddScoped<ICalificacionService, CalificacionService>();
 				services.AddScoped<IPosteoService, PosteoService>();
+				services.AddScoped<IMenuService, MenuService>();
 			}
 	}
 }

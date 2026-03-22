@@ -16,6 +16,17 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.InyectarDependencias(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAngular",
+		policy =>
+		{
+			policy.WithOrigins("http://localhost:4200") // 🔥 Front-end Angular
+				  .AllowAnyHeader()
+				  .AllowAnyMethod();
+		});
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -71,6 +82,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+
+app.UseCors("AllowAngular");
 
 app.MapControllers();
 
