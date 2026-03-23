@@ -22,5 +22,7 @@ namespace SistemaEscuela.DTO.Usuario
 
 		public string UrlImagen { get; set; }
 
+		public string Token { get; set; }
+
 	}
 }

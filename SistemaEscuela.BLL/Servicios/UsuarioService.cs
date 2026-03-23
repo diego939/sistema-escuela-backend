@@ -46,7 +46,8 @@ namespace SistemaEscuela.BLL.Servicios
 				IdRol = usuario.IdRol,
 				Rol = usuario.IdRolNavigation.Descripcion,
 				Dni = usuario.Dni,
-				UrlImagen = usuario.UrlImagen
+				UrlImagen = usuario.UrlImagen,
+				Token = token
 			};
 		}
 
