@@ -6,6 +6,8 @@ namespace SistemaEscuela.DTO.Menu
 
 		public string MenuNombre { get; set; }
 
+		public string MenuIcono { get; set; }
+
 		public string MenuUrl { get; set; }
 	}
 }

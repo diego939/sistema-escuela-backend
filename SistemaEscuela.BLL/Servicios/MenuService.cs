@@ -39,6 +39,7 @@ namespace SistemaEscuela.BLL.Servicios
 			var menu = new Menu
 			{
 				Nombre = modelo.Nombre,
+				Icono = modelo.Icono,
 				UrlMenu = modelo.UrlMenu,
 				FechaCreacion = DateTime.Now
 			};
@@ -49,6 +50,7 @@ namespace SistemaEscuela.BLL.Servicios
 			{
 				Id = creado.Id,
 				Nombre = creado.Nombre,
+				Icono = creado.Icono,
 				UrlMenu = creado.UrlMenu,
 				FechaCreacion = creado.FechaCreacion.Value
 			};
@@ -75,6 +77,7 @@ namespace SistemaEscuela.BLL.Servicios
 
 			// Actualizar el menú
 			menu.Nombre = modelo.Nombre;
+			menu.Icono = modelo.Icono;
 			menu.UrlMenu = modelo.UrlMenu;
 
 			await _menuRepository.Editar(menu);
@@ -83,6 +86,7 @@ namespace SistemaEscuela.BLL.Servicios
 			{
 				Id = menu.Id,
 				Nombre = menu.Nombre,
+				Icono = menu.Icono,
 				UrlMenu = menu.UrlMenu,
 				FechaCreacion = menu.FechaCreacion.Value
 			};
@@ -93,7 +97,7 @@ namespace SistemaEscuela.BLL.Servicios
 			// Obtener todos los menús activos
 			var menus = await _menuRepository.Consultar(m =>
 				m.FechaEliminacion == null)
-				.OrderBy(m => m.Nombre)
+				.OrderBy(m => m.Id)
 				.ToListAsync();
 
 			return menus
@@ -101,6 +105,7 @@ namespace SistemaEscuela.BLL.Servicios
 				{
 					Id = m.Id,
 					Nombre = m.Nombre,
+					Icono = m.Icono,
 					UrlMenu = m.UrlMenu,
 					FechaCreacion = m.FechaCreacion.Value
 				})
@@ -193,9 +198,10 @@ namespace SistemaEscuela.BLL.Servicios
 				{
 					IdMenu = mr.IdMenuNavigation.Id,
 					MenuNombre = mr.IdMenuNavigation.Nombre,
+					MenuIcono = mr.IdMenuNavigation.Icono,
 					MenuUrl = mr.IdMenuNavigation.UrlMenu
 				})
-				.OrderBy(x => x.MenuNombre)
+				.OrderBy(x => x.IdMenu)
 				.ToList();
 
 			return menus;
@@ -234,6 +240,7 @@ namespace SistemaEscuela.BLL.Servicios
 				{
 					IdMenu = mr.IdMenuNavigation.Id,
 					MenuNombre = mr.IdMenuNavigation.Nombre,
+					MenuIcono = mr.IdMenuNavigation.Icono,
 					MenuUrl = mr.IdMenuNavigation.UrlMenu
 				})
 				.OrderBy(x => x.MenuNombre)

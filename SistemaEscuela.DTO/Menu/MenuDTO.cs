@@ -6,6 +6,8 @@ namespace SistemaEscuela.DTO.Menu
 
 		public string Nombre { get; set; }
 
+		public string Icono { get; set; }
+
 		public string UrlMenu { get; set; }
 
 		public DateTime FechaCreacion { get; set; }
