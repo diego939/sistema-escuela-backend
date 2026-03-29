@@ -1,4 +1,6 @@
-﻿using SistemaEscuela.DTO.Usuario;
+﻿using SistemaEscuela.DTO.Comun;
+using SistemaEscuela.DTO.Rol;
+using SistemaEscuela.DTO.Usuario;
 
 namespace SistemaEscuela.BLL.Contratos
 {
@@ -10,6 +12,8 @@ namespace SistemaEscuela.BLL.Contratos
 
 		Task<List<UsuarioDTO>> ListaUsuarios();
 
+		Task<PaginatedResult<UsuarioDTO>> ListaUsuariosPaginado(PaginationRequest request);
+
 		Task<UsuarioDTO> EditarUsuario(EditarUsuarioDTO modelo);
 
 		Task<bool> ActivarUsuario(ActivarDesactivarUsuarioDTO modelo);
@@ -17,5 +21,7 @@ namespace SistemaEscuela.BLL.Contratos
 		Task<bool> DesactivarUsuario(ActivarDesactivarUsuarioDTO modelo);
 
 		Task<bool> CambiarPassword(CambiarPasswordDTO modelo);
+
+		Task<List<RolDTO>> ListarRoles();
 	}
 }

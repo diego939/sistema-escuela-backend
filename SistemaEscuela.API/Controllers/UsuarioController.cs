@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaEscuela.BLL.Contratos;
+using SistemaEscuela.DTO.Comun;
 using SistemaEscuela.DTO.Usuario;
 
 namespace SistemaEscuela.API.Controllers
@@ -57,6 +58,29 @@ namespace SistemaEscuela.API.Controllers
 			}
 		}
 
+		[HttpGet("lista-paginado")]
+		public async Task<IActionResult> ListaUsuariosPaginado([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string search = "", [FromQuery] string sortBy = "nombres", [FromQuery] bool sortDescending = false)
+		{
+			try
+			{
+				var request = new PaginationRequest
+				{
+					PageNumber = pageNumber,
+					PageSize = pageSize,
+					Search = search,
+					SortBy = sortBy,
+					SortDescending = sortDescending
+				};
+
+				var resultado = await _usuarioService.ListaUsuariosPaginado(request);
+				return Ok(resultado);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
 		[HttpPut("editar")]
 		public async Task<IActionResult> EditarUsuario([FromBody] EditarUsuarioDTO modelo)
 		{
@@ -106,6 +130,20 @@ namespace SistemaEscuela.API.Controllers
 			{
 				var resultado = await _usuarioService.CambiarPassword(modelo);
 				return Ok(new { mensaje = "Contraseña cambiada correctamente", exitoso = resultado });
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpGet("listar-roles")]
+		public async Task<IActionResult> ListarRoles()
+		{
+			try
+			{
+				var lista = await _usuarioService.ListarRoles();
+				return Ok(lista);
 			}
 			catch (Exception ex)
 			{

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SistemaEscuela.BLL.Contratos;
 using SistemaEscuela.DAL.Repositorios.Contrato;
+using SistemaEscuela.DTO.Comun;
+using SistemaEscuela.DTO.Rol;
 using SistemaEscuela.DTO.Usuario;
 using SistemaEscuela.Model;
 using SistemaEscuela.Utility;
@@ -10,11 +12,13 @@ namespace SistemaEscuela.BLL.Servicios
 	public class UsuarioService : IUsuarioService
 	{
 		private readonly IGenericRepository<Usuario> _usuarioRepository;
+		private readonly IGenericRepository<Rol> _rolRepository;
 		private readonly JwtHelper _jwtHelper;
 
-		public UsuarioService(IGenericRepository<Usuario> usuarioRepository, JwtHelper jwtHelper)
+		public UsuarioService(IGenericRepository<Usuario> usuarioRepository, IGenericRepository<Rol> rolRepository,  JwtHelper jwtHelper)
 		{
 			_usuarioRepository = usuarioRepository;
+			_rolRepository = rolRepository;
 			_jwtHelper = jwtHelper;
 		}
 
@@ -96,6 +100,69 @@ namespace SistemaEscuela.BLL.Servicios
 				.ToListAsync();
 
 				return lista;
+		}
+
+		public async Task<PaginatedResult<UsuarioDTO>> ListaUsuariosPaginado(PaginationRequest request)
+		{
+			var query = _usuarioRepository.Consultar(u => u.FechaEliminacion == null);
+
+			// Aplicar búsqueda
+			if (!string.IsNullOrWhiteSpace(request.Search))
+			{
+				var searchLower = request.Search.ToLower();
+				query = query.Where(u =>
+					u.Nombres.ToLower().Contains(searchLower) ||
+					u.Apellidos.ToLower().Contains(searchLower) ||
+					u.Email.ToLower().Contains(searchLower) ||
+					u.Dni.ToLower().Contains(searchLower));
+			}
+
+			// Contar total de registros
+			var totalRecords = await query.CountAsync();
+
+			// Aplicar ordenamiento
+			query = ApplySortingToUsuarios(query, request.SortBy, request.SortDescending);
+
+			// Aplicar paginación
+			var usuarios = await query
+				.Include(u => u.IdRolNavigation)
+				.Skip((request.PageNumber - 1) * request.PageSize)
+				.Take(request.PageSize)
+				.Select(u => new UsuarioDTO
+				{
+					Id = u.Id,
+					Nombres = u.Nombres,
+					Apellidos = u.Apellidos,
+					Email = u.Email,
+					Telefono = u.Telefono,
+					Rol = u.IdRolNavigation.Descripcion,
+					Dni = u.Dni,
+					UrlImagen = u.UrlImagen
+				})
+				.ToListAsync();
+
+			var totalPages = (int)Math.Ceiling(totalRecords / (double)request.PageSize);
+
+			return new PaginatedResult<UsuarioDTO>
+			{
+				Data = usuarios,
+				TotalRecords = totalRecords,
+				TotalPages = totalPages,
+				PageNumber = request.PageNumber,
+				PageSize = request.PageSize
+			};
+		}
+
+		private IQueryable<Usuario> ApplySortingToUsuarios(IQueryable<Usuario> query, string sortBy, bool sortDescending)
+		{
+			return sortBy.ToLower() switch
+			{
+				"apellidos" => sortDescending ? query.OrderByDescending(u => u.Apellidos) : query.OrderBy(u => u.Apellidos),
+				"email" => sortDescending ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+				"dni" => sortDescending ? query.OrderByDescending(u => u.Dni) : query.OrderBy(u => u.Dni),
+				"telefono" => sortDescending ? query.OrderByDescending(u => u.Telefono) : query.OrderBy(u => u.Telefono),
+				_ => sortDescending ? query.OrderByDescending(u => u.Nombres) : query.OrderBy(u => u.Nombres),
+			};
 		}
 
 		public async Task<UsuarioDTO> EditarUsuario(EditarUsuarioDTO modelo)
@@ -182,6 +249,20 @@ namespace SistemaEscuela.BLL.Servicios
 			// Cambiar la contraseña
 			usuario.Password = PasswordHelper.HashPassword(modelo.PasswordNueva);
 			return await _usuarioRepository.Editar(usuario);
+		}
+
+		// Roles 
+		public async Task<List<RolDTO>> ListarRoles()
+		{
+			var query = _rolRepository.Consultar(r => r.FechaEliminacion == null);
+			var lista = await query
+				.Select(r => new RolDTO
+				{
+					Id = r.Id,
+					Descripcion = r.Descripcion
+				})
+				.ToListAsync();
+			return lista;
 		}
 	}
 }
