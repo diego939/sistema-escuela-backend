@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaEscuela.BLL.Contratos;
 using SistemaEscuela.DAL.Repositorios.Contrato;
+using SistemaEscuela.DTO.Comun;
 using SistemaEscuela.DTO.Curso;
+using SistemaEscuela.DTO.Usuario;
 using SistemaEscuela.Model;
 
 namespace SistemaEscuela.BLL.Servicios
@@ -96,5 +98,72 @@ namespace SistemaEscuela.BLL.Servicios
 
 			return cursos;
 		}
+
+		public async Task<PaginatedResult<CursoDTO>> ObtenerCursosPaginado(PaginationRequest request)
+		{
+			var query = _cursoRepository.Consultar(c => c.FechaEliminacion == null);
+
+			// Aplicar búsqueda
+			if (!string.IsNullOrWhiteSpace(request.Search))
+			{
+				var searchLower = request.Search.ToLower();
+				query = query.Where(c =>
+					c.Division.ToLower().Contains(searchLower) ||
+					c.Modalidad.ToLower().Contains(searchLower) ||
+					c.Turno.ToLower().Contains(searchLower) ||
+					c.Anio.ToString().Contains(searchLower));
+			}
+
+			// Contar total de registros
+			var totalRecords = await query.CountAsync();
+
+			// Aplicar ordenamiento
+			query = ApplySortingToCursos(query, request.SortBy, request.SortDescending);
+
+			// Aplicar paginación
+			var cursos = await query
+				.Skip((request.PageNumber - 1) * request.PageSize)
+				.Take(request.PageSize)
+				.Select(c => new CursoDTO
+				{
+					Id = c.Id,
+					Modulo = c.Modulo,
+					Division = c.Division,
+					Modalidad = c.Modalidad,
+					Turno = c.Turno,
+					Anio = c.Anio,
+					CupoMaximo = c.CupoMaximo,
+					FechaCreacion = c.FechaCreacion
+				})
+				.ToListAsync();
+
+			var totalPages = (int)Math.Ceiling(totalRecords / (double)request.PageSize);
+
+			return new PaginatedResult<CursoDTO>
+			{
+				Data = cursos,
+				TotalRecords = totalRecords,
+				TotalPages = totalPages,
+				PageNumber = request.PageNumber,
+				PageSize = request.PageSize
+			};
+		}
+
+		private IQueryable<Curso> ApplySortingToCursos(IQueryable<Curso> query, string sortBy, bool sortDescending)
+		{
+			return sortBy.ToLower() switch
+			{
+				"id" => sortDescending ? query.OrderByDescending(c => c.Id) : query.OrderBy(c => c.Id),
+				"modulo" => sortDescending ? query.OrderByDescending(c => c.Modulo) : query.OrderBy(c => c.Modulo),
+				"division" => sortDescending ? query.OrderByDescending(c => c.Division) : query.OrderBy(c => c.Division),
+				"modalidad" => sortDescending ? query.OrderByDescending(c => c.Modalidad) : query.OrderBy(c => c.Modalidad),
+				"turno" => sortDescending ? query.OrderByDescending(c => c.Turno) : query.OrderBy(c => c.Turno),
+				"anio" => sortDescending ? query.OrderByDescending(c => c.Anio) : query.OrderBy(c => c.Anio),
+				"cupmaximo" => sortDescending ? query.OrderByDescending(c => c.CupoMaximo) : query.OrderBy(c => c.CupoMaximo),
+				_ => sortDescending ? query.OrderByDescending(c => c.Anio).ThenByDescending(c => c.Modulo).ThenByDescending(c => c.Division) : query.OrderBy(c => c.Anio).ThenBy(c => c.Modulo).ThenBy(c => c.Division),
+			};
+		}
+
 	}
 }
+

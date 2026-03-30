@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SistemaEscuela.BLL.Contratos;
+using SistemaEscuela.DTO.Comun;
 using SistemaEscuela.DTO.Curso;
 
 namespace SistemaEscuela.API.Controllers
@@ -25,7 +26,7 @@ namespace SistemaEscuela.API.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(ex.Message);
+				return BadRequest(new { message = ex.Message });
 			}
 		}
 
@@ -39,7 +40,30 @@ namespace SistemaEscuela.API.Controllers
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(ex.Message);
+				return BadRequest(new { message = ex.Message });
+			}
+		}
+
+		[HttpGet("lista-paginado")]
+		public async Task<IActionResult> ObtenerCursosPaginado([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string search = "", [FromQuery] string sortBy = "anio", [FromQuery] bool sortDescending = false)
+		{
+			try
+			{
+				var request = new PaginationRequest
+				{
+					PageNumber = pageNumber,
+					PageSize = pageSize,
+					Search = search,
+					SortBy = sortBy,
+					SortDescending = sortDescending
+				};
+
+				var resultado = await _cursoService.ObtenerCursosPaginado(request);
+				return Ok(resultado);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = ex.Message });
 			}
 		}
 	}

@@ -1,4 +1,6 @@
+using SistemaEscuela.DTO.Comun;
 using SistemaEscuela.DTO.Curso;
+using SistemaEscuela.DTO.Usuario;
 
 namespace SistemaEscuela.BLL.Contratos
 {
@@ -7,5 +9,7 @@ namespace SistemaEscuela.BLL.Contratos
 		Task<CursoDTO> CrearCurso(CrearCursoDTO modelo);
 
 		Task<List<CursoDTO>> ObtenerCursosDisponibles();
+
+		Task<PaginatedResult<CursoDTO>> ObtenerCursosPaginado(PaginationRequest request);
 	}
 }
