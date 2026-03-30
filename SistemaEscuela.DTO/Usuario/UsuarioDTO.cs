@@ -24,5 +24,7 @@ namespace SistemaEscuela.DTO.Usuario
 
 		public string Token { get; set; }
 
+		public DateTime? FechaEliminacion { get; set; }
+
 	}
 }
