@@ -96,6 +96,7 @@ namespace SistemaEscuela.BLL.Servicios
 					Apellidos = u.Apellidos,
 					Email = u.Email,
 					Telefono = u.Telefono,
+					IdRol = u.IdRol,
 					Rol = u.IdRolNavigation.Descripcion,
 					Dni = u.Dni,
 					UrlImagen = u.UrlImagen
@@ -138,6 +139,7 @@ namespace SistemaEscuela.BLL.Servicios
 					Apellidos = u.Apellidos,
 					Email = u.Email,
 					Telefono = u.Telefono,
+					IdRol = u.IdRol,
 					Rol = u.IdRolNavigation.Descripcion,
 					Dni = u.Dni,
 					UrlImagen = u.UrlImagen,
@@ -175,11 +177,22 @@ namespace SistemaEscuela.BLL.Servicios
 			var usuario = await _usuarioRepository.Consultar(u =>
 				u.Id == modelo.Id &&
 				u.FechaEliminacion == null)
-				.Include(u => u.IdRolNavigation)
 				.FirstOrDefaultAsync();
 
 			if (usuario == null)
 				throw new Exception("Usuario no encontrado");
+
+			// Validar que el rol existe
+			if (modelo.IdRol > 0)
+			{
+				var rolExiste = await _rolRepository.Consultar(r =>
+					r.Id == modelo.IdRol &&
+					r.FechaEliminacion == null)
+					.AnyAsync();
+
+				if (!rolExiste)
+					throw new Exception("El rol especificado no existe");
+			}
 
 			usuario.Nombres = modelo.Nombres;
 			usuario.Apellidos = modelo.Apellidos;
@@ -194,16 +207,23 @@ namespace SistemaEscuela.BLL.Servicios
 			if (!editado)
 				throw new Exception("Error al editar el usuario");
 
+			// Recargar el usuario actualizado de la base de datos con la relación
+			var usuarioActualizado = await _usuarioRepository.Consultar(u =>
+				u.Id == modelo.Id)
+				.Include(u => u.IdRolNavigation)
+				.FirstOrDefaultAsync();
+
 			return new UsuarioDTO
 			{
-				Id = usuario.Id,
-				Nombres = usuario.Nombres,
-				Apellidos = usuario.Apellidos,
-				Email = usuario.Email,
-				Telefono = usuario.Telefono,
-				Rol = usuario.IdRolNavigation.Descripcion,
-				Dni = usuario.Dni,
-				UrlImagen = usuario.UrlImagen
+				Id = usuarioActualizado.Id,
+				Nombres = usuarioActualizado.Nombres,
+				Apellidos = usuarioActualizado.Apellidos,
+				Email = usuarioActualizado.Email,
+				Telefono = usuarioActualizado.Telefono,
+				IdRol = usuarioActualizado.IdRol,
+				Rol = usuarioActualizado.IdRolNavigation?.Descripcion,
+				Dni = usuarioActualizado.Dni,
+				UrlImagen = usuarioActualizado.UrlImagen
 			};
 		}
 
