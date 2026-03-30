@@ -25,13 +25,16 @@ namespace SistemaEscuela.BLL.Servicios
 		public async Task<UsuarioDTO> Login(LoginDTO modelo)
 		{
 			var usuario = await _usuarioRepository.Consultar(u =>
-				u.Email == modelo.Email &&
-				u.FechaEliminacion == null)
+				u.Email == modelo.Email)
 				.Include(u => u.IdRolNavigation)
 				.FirstOrDefaultAsync();
 
 			if (usuario == null)
 				throw new Exception("Usuario no encontrado");
+
+			// Verificar si la cuenta está desactivada
+			if (usuario.FechaEliminacion != null)
+				throw new Exception("Su cuenta se encuentra inactiva");
 
 			// Verificar password con hash
 			if (!PasswordHelper.VerifyPassword(modelo.Password, usuario.Password))
@@ -104,7 +107,7 @@ namespace SistemaEscuela.BLL.Servicios
 
 		public async Task<PaginatedResult<UsuarioDTO>> ListaUsuariosPaginado(PaginationRequest request)
 		{
-			var query = _usuarioRepository.Consultar(u => u.FechaEliminacion == null);
+			var query = _usuarioRepository.Consultar();
 
 			// Aplicar búsqueda
 			if (!string.IsNullOrWhiteSpace(request.Search))
@@ -137,7 +140,8 @@ namespace SistemaEscuela.BLL.Servicios
 					Telefono = u.Telefono,
 					Rol = u.IdRolNavigation.Descripcion,
 					Dni = u.Dni,
-					UrlImagen = u.UrlImagen
+					UrlImagen = u.UrlImagen,
+					FechaEliminacion = u.FechaEliminacion
 				})
 				.ToListAsync();
 
@@ -157,6 +161,7 @@ namespace SistemaEscuela.BLL.Servicios
 		{
 			return sortBy.ToLower() switch
 			{
+				"id" => sortDescending ? query.OrderByDescending(u => u.Id) : query.OrderBy(u => u.Id),
 				"apellidos" => sortDescending ? query.OrderByDescending(u => u.Apellidos) : query.OrderBy(u => u.Apellidos),
 				"email" => sortDescending ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
 				"dni" => sortDescending ? query.OrderByDescending(u => u.Dni) : query.OrderBy(u => u.Dni),
