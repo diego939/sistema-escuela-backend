@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaEscuela.BLL.Contratos;
 using SistemaEscuela.DAL.Repositorios.Contrato;
+using SistemaEscuela.DTO.Comun;
 using SistemaEscuela.DTO.Materia;
 using SistemaEscuela.Model;
 
@@ -117,6 +118,31 @@ namespace SistemaEscuela.BLL.Servicios
 			};
 		}
 
+		public async Task<bool> DesasociarMateriaCurso(int idCurso, int idMateria)
+		{
+			var curso = await _cursoRepository.Consultar(c =>
+				c.Id == idCurso &&
+				c.FechaEliminacion == null)
+				.FirstOrDefaultAsync();
+
+			if (curso == null)
+				throw new Exception("El curso no existe");
+
+			var asociacion = await _cursoMateriaRepository.Consultar(cm =>
+				cm.IdCurso == idCurso &&
+				cm.IdMateria == idMateria &&
+				cm.FechaEliminacion == null)
+				.FirstOrDefaultAsync();
+
+			if (asociacion == null)
+				throw new Exception("La materia no está asociada a este curso");
+
+			asociacion.FechaEliminacion = DateTime.Now;
+			await _cursoMateriaRepository.Editar(asociacion);
+
+			return true;
+		}
+
 		public async Task<List<CursoMateriaDTO>> ObtenerMateriasDelCurso(int idCurso)
 		{
 			// Validar que el curso existe
@@ -144,6 +170,95 @@ namespace SistemaEscuela.BLL.Servicios
 				.ToListAsync();
 
 			return materias;
+		}
+
+		public async Task<PaginatedResult<MateriaDTO>> ObtenerMateriasPaginado(PaginationRequest request)
+		{
+			var query = _materiaRepository.Consultar(m => m.FechaEliminacion == null);
+
+			// Aplicar búsqueda
+			if (!string.IsNullOrWhiteSpace(request.Search))
+			{
+			 var searchLower = request.Search.ToLower();
+			 query = query.Where(m => m.Descripcion.ToLower().Contains(searchLower) || m.Id.ToString().Contains(searchLower));
+			}
+
+			// Contar total de registros
+			var totalRecords = await query.CountAsync();
+
+			// Aplicar ordenamiento
+			query = AplicarOrdenamiento(query, request.SortBy, request.SortDescending);
+
+			// Aplicar paginación
+			var materias = await query
+				.Skip((request.PageNumber - 1) * request.PageSize)
+				.Take(request.PageSize)
+				.Select(m => new MateriaDTO
+				{
+					Id = m.Id,
+					Descripcion = m.Descripcion,
+					FechaCreacion = m.FechaCreacion.Value
+				})
+				.ToListAsync();
+
+			var totalPages = (int)Math.Ceiling(totalRecords / (double)request.PageSize);
+
+			return new PaginatedResult<MateriaDTO>
+			{
+				Data = materias,
+				TotalRecords = totalRecords,
+				TotalPages = totalPages,
+				PageNumber = request.PageNumber,
+				PageSize = request.PageSize
+			};
+
+		}
+
+		private IQueryable<Materia> AplicarOrdenamiento(IQueryable<Materia> query, string sortBy, bool sortDescending)
+		{
+			return sortBy switch
+			{
+				"id" => sortDescending ? query.OrderByDescending(c => c.Id) : query.OrderBy(c => c.Id),
+				"descripcion" => sortDescending ? query.OrderByDescending(m => m.Descripcion) : query.OrderBy(m => m.Descripcion),
+				_ => query.OrderBy(m => m.Descripcion)
+			};
+		}
+
+		public async Task<MateriaDTO> EditarMateria(EditarMateriDTO modelo)
+		{
+			var materia = await _materiaRepository.Consultar(m =>
+				m.Id == modelo.Id &&
+				m.FechaEliminacion == null)
+				.FirstOrDefaultAsync();
+			if (materia == null)
+				throw new Exception("La materia no existe");
+
+			var materiaExistente = await _materiaRepository.Consultar(m =>
+				m.Descripcion == modelo.Descripcion &&
+				m.Id != modelo.Id &&
+				m.FechaEliminacion == null)
+				.FirstOrDefaultAsync();
+			if (materiaExistente != null)
+				throw new Exception("Ya existe una materia con esa descripción");
+
+			materia.Descripcion = modelo.Descripcion;
+
+			var editada = await _materiaRepository.Editar(materia);
+
+			if (editada == null)
+				throw new Exception("No se pudo editar la materia");
+
+			var materiaActualizada = await _materiaRepository.Consultar(m =>
+				m.Id == modelo.Id)
+				.FirstOrDefaultAsync();
+
+			return new MateriaDTO
+			{
+				Id = materiaActualizada.Id,
+				Descripcion = materiaActualizada.Descripcion,
+				FechaCreacion = materiaActualizada.FechaCreacion.Value
+			};
+
 		}
 	}
 }

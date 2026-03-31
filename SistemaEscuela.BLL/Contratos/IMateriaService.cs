@@ -1,3 +1,4 @@
+using SistemaEscuela.DTO.Comun;
 using SistemaEscuela.DTO.Materia;
 
 namespace SistemaEscuela.BLL.Contratos
@@ -10,6 +11,11 @@ namespace SistemaEscuela.BLL.Contratos
 
 		Task<CursoMateriaDTO> AsociarMateriaACurso(AsociarMateriaDTO modelo);
 
+		Task<bool> DesasociarMateriaCurso(int idCurso, int idMateria);
+
 		Task<List<CursoMateriaDTO>> ObtenerMateriasDelCurso(int idCurso);
+
+		Task<MateriaDTO> EditarMateria(EditarMateriDTO modelo);
+		Task<PaginatedResult<MateriaDTO>> ObtenerMateriasPaginado(PaginationRequest request);
 	}
 }
