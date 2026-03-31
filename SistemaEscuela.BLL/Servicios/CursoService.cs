@@ -164,6 +164,55 @@ namespace SistemaEscuela.BLL.Servicios
 			};
 		}
 
+		public async Task<CursoDTO> EditarCurso(EditarCursoDTO modelo)
+		{
+			var curso = await _cursoRepository.Consultar(c => c.Id == modelo.Id && c.FechaEliminacion == null).FirstOrDefaultAsync();
+
+			if (curso == null) 
+			throw new Exception("Curso no encontrado");
+
+			// Verificar que no exista un curso igual
+			var cursoExistente = await _cursoRepository.Consultar(c =>
+				c.Modulo == modelo.Modulo &&
+				c.Division == modelo.Division &&
+				c.Modalidad == modelo.Modalidad &&
+				c.Turno == modelo.Turno &&
+				c.Anio == modelo.Anio &&
+				c.FechaEliminacion == null)
+				.FirstOrDefaultAsync();
+
+			if (cursoExistente != null)
+				throw new Exception("Ya existe un curso con estas características");
+
+			curso.Modulo = modelo.Modulo;
+			curso.Division = modelo.Division;
+			curso.Modalidad = modelo.Modalidad;
+			curso.Turno = modelo.Turno;
+			curso.Anio = modelo.Anio;
+			curso.CupoMaximo = modelo.CupoMaximo;
+
+			var editado = await _cursoRepository.Editar(curso);
+
+			if (editado == null)
+				throw new Exception("Error al editar el curso");
+
+			var cursoActualizado = await _cursoRepository.Consultar(u =>
+				u.Id == modelo.Id)
+				.FirstOrDefaultAsync();
+
+			return new CursoDTO
+			{
+				Id = cursoActualizado.Id,
+				Modulo = cursoActualizado.Modulo,
+				Division = cursoActualizado.Division,
+				Modalidad = cursoActualizado.Modalidad,
+				Turno = cursoActualizado.Turno,
+				Anio = cursoActualizado.Anio,
+				CupoMaximo = cursoActualizado.CupoMaximo,
+				FechaCreacion = cursoActualizado.FechaCreacion
+			};
+
+		}
 	}
 }
 

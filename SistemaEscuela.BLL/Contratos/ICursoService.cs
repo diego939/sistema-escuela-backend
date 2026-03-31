@@ -11,5 +11,7 @@ namespace SistemaEscuela.BLL.Contratos
 		Task<List<CursoDTO>> ObtenerCursosDisponibles();
 
 		Task<PaginatedResult<CursoDTO>> ObtenerCursosPaginado(PaginationRequest request);
+
+		Task<CursoDTO> EditarCurso(EditarCursoDTO modelo);
 	}
 }

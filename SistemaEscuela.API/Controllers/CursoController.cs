@@ -66,5 +66,19 @@ namespace SistemaEscuela.API.Controllers
 				return BadRequest(new { message = ex.Message });
 			}
 		}
+
+		[HttpPut("editar")]
+		public async Task<IActionResult> EditarCurso([FromBody] EditarCursoDTO modelo)
+		{
+			try
+			{
+				var curso = await _cursoService.EditarCurso(modelo);
+				return Ok(curso);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+		}
 	}
 }
