@@ -1,4 +1,6 @@
+using SistemaEscuela.DTO.Comun;
 using SistemaEscuela.DTO.Preceptor;
+using SistemaEscuela.DTO.Profesor;
 
 namespace SistemaEscuela.BLL.Contratos
 {
@@ -9,5 +11,7 @@ namespace SistemaEscuela.BLL.Contratos
 		Task<List<PreceptorCursoDTO>> ObtenerCursosDelPreceptor(int idPreceptor);
 
 		Task<bool> DesasignarPreceptorDelCurso(int idPreceptor, int idCurso);
+
+		Task<PaginatedResult<PreceptorDTO>> ListaPreceptoresPaginado(PaginationRequest request);
 	}
 }
